@@ -1,0 +1,182 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Employee or Administrator profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["employee", "admin", "manager", "supervisor", "technician"] },
+        "division": { "type": "string", "enum": ["Compliance Division", "Telecoms Division", "Logistics Division", "Electrical Division", "GRV Department"] },
+        "photoURL": { "type": "string", "format": "uri" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "reminders": {
+          "type": "object",
+          "properties": {
+            "checkIn": { "type": "array", "items": { "type": "string" } },
+            "checkOut": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "dayOffDate": { "type": "string", "format": "date", "description": "Latest date marked as day off" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Location": {
+      "title": "Location",
+      "description": "Work location with geofencing",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "radius": { "type": "number", "description": "Geofence radius in meters" }
+      },
+      "required": ["name", "latitude", "longitude", "radius"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Check-in and check-out records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "locationId": { "type": "string" },
+        "locationName": { "type": "string" },
+        "checkInTime": { "type": "string", "format": "date-time" },
+        "checkOutTime": { "type": "string", "format": "date-time" },
+        "checkInPhoto": { "type": "string", "description": "Base64 or URL of selfie" },
+        "checkOutPhoto": { "type": "string" },
+        "checkInLocation": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" }
+          }
+        },
+        "checkOutLocation": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" }
+          }
+        },
+        "checkInDevice": { "type": "string", "description": "Device brand/model at check-in" },
+        "checkOutDevice": { "type": "string", "description": "Device brand/model at check-out" },
+        "additionalBreakMinutes": { "type": "number", "description": "Manual extra break time in minutes" },
+        "status": { "type": "string", "enum": ["active", "completed"] }
+      },
+      "required": ["userId", "locationId", "checkInTime"]
+    },
+    "LeaveRequest": {
+      "title": "LeaveRequest",
+      "description": "Time off requests",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "reason": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "denied"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "reviewedBy": { "type": "string" },
+        "reviewComment": { "type": "string" }
+      },
+      "required": ["userId", "startDate", "endDate", "status"]
+    },
+    "Invitation": {
+      "title": "Invitation",
+      "description": "Invitation for a new employee to join",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "invitedName": { "type": "string" },
+        "division": { "type": "string", "enum": ["Compliance Division", "Telecoms Division", "Logistics Division", "Electrical Division", "GRV Department"] },
+        "role": { "type": "string", "enum": ["employee", "admin", "manager", "supervisor", "technician"] },
+        "status": { "type": "string", "enum": ["pending", "accepted"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "token": { "type": "string", "description": "Unique token for the invitation link" }
+      },
+      "required": ["email", "role", "status", "token"]
+    },
+    "LocationAudit": {
+      "title": "Location Audit",
+      "description": "Automatically recorded location for missing check-in/out",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "email": { "type": "string" },
+        "time": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["check-in-missed", "check-out-missed"] },
+        "location": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" }
+          }
+        },
+        "distanceFromGeofence": { "type": "number" },
+        "nearestLocationName": { "type": "string" }
+      },
+      "required": ["userId", "time", "location", "type"]
+    },
+    "ManualAttendanceRequest": {
+      "title": "Manual Attendance Request",
+      "description": "Request for a manual check-in, check-out, or manual hours entry",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "type": { "type": "string", "enum": ["check-in", "check-out", "additional-hours"] },
+        "requestedTime": { "type": "string", "format": "date-time" },
+        "hours": { "type": "number", "description": "Number of hours requested for additional-hours type" },
+        "reason": { "type": "string" },
+        "locationId": { "type": "string" },
+        "locationName": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "denied"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "processedBy": { "type": "string" },
+        "processedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "requestedTime", "reason", "locationId", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/locations/{locationId}": {
+      "schema": "Location",
+      "description": "Work locations"
+    },
+    "/attendance/{attendanceId}": {
+      "schema": "Attendance",
+      "description": "Attendance logs"
+    },
+    "/leaveRequests/{requestId}": {
+      "schema": "LeaveRequest",
+      "description": "Time off requests"
+    },
+    "/invitations/{invitationId}": {
+      "schema": "Invitation",
+      "description": "Employee invitations"
+    },
+    "/locationAudits/{auditId}": {
+      "schema": "LocationAudit",
+      "description": "Location audits for compliance"
+    },
+    "/manualAttendanceRequests/{requestId}": {
+      "schema": "ManualAttendanceRequest",
+      "description": "Manual attendance correction requests"
+    }
+  }
+}

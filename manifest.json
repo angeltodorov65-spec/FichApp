@@ -1,0 +1,30 @@
+{
+  "name": "ERCS Ltd Attendance",
+  "short_name": "ERCS Ltd",
+  "description": "Employee attendance tracking for ERCS Ltd.",
+  "id": "/?v=10",
+  "start_url": "/?v=10",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#18181b",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/d/1b5KCCN6VJ_iSaZslIxhewhoBwPtm2zpJ",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://lh3.googleusercontent.com/d/1b5KCCN6VJ_iSaZslIxhewhoBwPtm2zpJ",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://lh3.googleusercontent.com/d/1b5KCCN6VJ_iSaZslIxhewhoBwPtm2zpJ",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

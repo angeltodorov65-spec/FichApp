@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Geist Variable', 'Inter', sans-serif;
+  --radius-lg: 0.5rem;
+  --radius-md: calc(var(--radius-lg) - 2px);
+  --radius-sm: calc(var(--radius-lg) - 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  :root {
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(240 10% 3.9%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(240 10% 3.9%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(240 10% 3.9%);
+    --primary: hsl(240 5.9% 10%);
+    --primary-foreground: hsl(0 0% 98%);
+    --secondary: hsl(240 4.8% 95.9%);
+    --secondary-foreground: hsl(240 5.9% 10%);
+    --muted: hsl(240 4.8% 95.9%);
+    --muted-foreground: hsl(240 3.8% 46.1%);
+    --accent: hsl(240 4.8% 95.9%);
+    --accent-foreground: hsl(240 5.9% 10%);
+    --destructive: hsl(0 84.2% 60.2%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(240 5.9% 90%);
+    --input: hsl(240 5.9% 90%);
+    --ring: hsl(240 5.9% 10%);
+    --radius: 0.5rem;
+    --chart-grid: #e4e4e7;
+    --chart-text: #71717a;
+    --chart-bar: #18181b;
+    --chart-pie-1: #18181b;
+    --chart-pie-2: #3f3f46;
+    --chart-pie-3: #71717a;
+    --chart-pie-4: #a1a1aa;
+    --chart-pie-5: #d4d4d8;
+    --chart-tooltip-bg: #ffffff;
+    --chart-tooltip-border: #e4e4e7;
+  }
+
+  .dark {
+    --background: hsl(240 10% 3.9%);
+    --foreground: hsl(0 0% 98%);
+    --card: hsl(240 10% 3.9%);
+    --card-foreground: hsl(0 0% 98%);
+    --popover: hsl(240 10% 3.9%);
+    --popover-foreground: hsl(0 0% 98%);
+    --primary: hsl(0 0% 98%);
+    --primary-foreground: hsl(240 5.9% 10%);
+    --secondary: hsl(240 3.7% 15.9%);
+    --secondary-foreground: hsl(0 0% 98%);
+    --muted: hsl(240 3.7% 15.9%);
+    --muted-foreground: hsl(240 5% 64.9%);
+    --accent: hsl(240 3.7% 15.9%);
+    --accent-foreground: hsl(0 0% 98%);
+    --destructive: hsl(0 62.8% 30.6%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(240 3.7% 15.9%);
+    --input: hsl(240 3.7% 15.9%);
+    --ring: hsl(240 4.9% 83.9%);
+    --chart-grid: #27272a;
+    --chart-text: #a1a1aa;
+    --chart-bar: #e4e4e7;
+    --chart-pie-1: #e4e4e7;
+    --chart-pie-2: #a1a1aa;
+    --chart-pie-3: #71717a;
+    --chart-pie-4: #52525b;
+    --chart-pie-5: #3f3f46;
+    --chart-tooltip-bg: #18181b;
+    --chart-tooltip-border: #27272a;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* React Calendar Overrides */
+.react-calendar {
+  @apply border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 font-sans w-full max-w-full;
+  background-color: var(--background) !important;
+}
+.react-calendar button {
+  @apply text-zinc-900 dark:text-zinc-100 rounded-md transition-colors;
+}
+.react-calendar button:enabled:hover {
+  @apply bg-zinc-100 dark:bg-zinc-800 cursor-pointer;
+}
+.react-calendar__navigation button {
+  @apply text-zinc-900 dark:text-zinc-100 bg-transparent rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 min-w-[44px];
+}
+.react-calendar__navigation button:disabled {
+  @apply opacity-50 cursor-not-allowed bg-transparent;
+}
+.react-calendar__month-view__weekdays {
+  @apply text-zinc-500 dark:text-zinc-400 font-medium text-xs font-semibold no-underline py-2;
+}
+.react-calendar__month-view__weekdays__weekday abbr {
+  @apply no-underline;
+}
+.react-calendar__month-view__days__day--weekend {
+  color: #ef4444 !important;
+}
+.dark .react-calendar__month-view__days__day--weekend {
+  color: #f87171 !important;
+}
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #a1a1aa !important;
+}
+.dark .react-calendar__month-view__days__day--neighboringMonth {
+  color: #52525b !important;
+}
+.react-calendar__tile {
+  @apply text-zinc-900 dark:text-zinc-100 p-2 text-sm md:text-base;
+}
+.react-calendar__tile--now {
+  @apply bg-zinc-100 dark:bg-zinc-800 font-bold border-2 border-zinc-900 dark:border-zinc-100 rounded-lg;
+}
+.react-calendar__tile--active,
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  @apply bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold rounded-lg;
+}
+.react-calendar__tile:disabled {
+  @apply opacity-50 cursor-not-allowed;
+  background-color: transparent !important;
+}

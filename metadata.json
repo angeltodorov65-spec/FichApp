@@ -1,0 +1,6 @@
+{
+  "name": "ERCS Ltd Attendance",
+  "description": "Employee attendance tracking for ERCS Ltd with geolocation, selfies, geofencing, and leave management. Supports English, Bulgarian, and Spanish.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": []
+}

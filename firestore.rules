@@ -1,0 +1,140 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Глобални Плъгини и Помощни Функции ---
+    
+    function isSignedIn() { return request.auth != null; }
+    
+    // Само напълно верифицирани имейли могат да пишат (по избор, но силно препоръчително)
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    
+    function isAdmin() { 
+      return isSignedIn() && (
+        ("email" in request.auth.token && request.auth.token.email == "angel.todorov.65@gmail.com") ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function isManager() {
+      return isSignedIn() && (
+        isAdmin() || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager')
+      );
+    }
+
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // --- Валидационни Блупринти ---
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid == request.auth.uid &&
+             data.email is string && data.email.size() <= 256 &&
+             data.role in ['employee', 'admin', 'manager', 'supervisor', 'technician'] &&
+             (!('division' in data) || data.division in ['Compliance Division', 'Telecoms Division', 'Logistics Division', 'Electrical Division', 'GRV Department']);
+    }
+
+    function isValidLocation(data) {
+      return data.keys().hasAll(['name', 'latitude', 'longitude', 'radius']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.latitude is number && data.longitude is number &&
+             data.radius is number && data.radius >= 0;
+    }
+
+    function isValidAttendance(data) {
+      return data.keys().hasAll(['userId', 'locationId', 'checkInTime']) &&
+             data.userId is string &&
+             data.locationId is string &&
+             data.checkInTime is string;
+    }
+
+    function isValidLeaveRequest(data) {
+      return data.keys().hasAll(['userId', 'startDate', 'endDate', 'status']) &&
+             data.startDate is string &&
+             data.endDate is string &&
+             data.status in ['pending', 'approved', 'denied'];
+    }
+
+    function isValidManualRequest(data) {
+      return data.keys().hasAll(['userId', 'type', 'requestedTime', 'reason', 'locationId', 'status']) &&
+             data.type in ['check-in', 'check-out', 'additional-hours', 'full-shift'] &&
+             data.requestedTime is string &&
+             data.status == 'pending';
+    }
+
+    function isValidInvitation(data) {
+      return data.keys().hasAll(['email', 'role', 'status', 'token']) &&
+             data.email is string &&
+             data.role in ['employee', 'admin', 'manager', 'supervisor', 'technician'] &&
+             data.status in ['pending', 'accepted'];
+    }
+
+    // --- Правила по Пътища ---
+
+    // Пълно отричане по подразбиране
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidUser(incoming());
+      allow update: if isManager() || (isSignedIn() && request.auth.uid == userId && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'reminders', 'dayOffDate', 'fcmToken', 'lastTokenUpdate']));
+      allow delete: if isAdmin();
+    }
+
+    match /locations/{locationId} {
+      allow read: if isSignedIn();
+      allow write: if isManager();
+    }
+
+    match /attendance/{attendanceId} {
+      allow read: if isSignedIn() && (isManager() || resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && (isManager() || (isValidAttendance(incoming()) && incoming().userId == request.auth.uid));
+      allow update: if isManager() || (isSignedIn() && resource.data.userId == request.auth.uid && 
+                    incoming().userId == resource.data.userId);
+      allow list: if isSignedIn() && (isManager() || resource.data.userId == request.auth.uid);
+    }
+
+    match /leaveRequests/{requestId} {
+      allow read: if isManager() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidLeaveRequest(incoming()) && incoming().userId == request.auth.uid;
+      allow update: if isManager();
+      allow list: if isManager() || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    match /invitations/{invitationId} {
+      allow get: if true; // Allow anyone to check invitation token
+      allow list: if isManager();
+      allow create: if isManager() && isValidInvitation(incoming());
+      allow update: if isManager() || (incoming().status == 'accepted' && incoming().diff(existing()).affectedKeys().hasOnly(['status']));
+      allow delete: if isManager();
+    }
+
+    match /locationAudits/{auditId} {
+      allow read: if isManager();
+      allow create: if isSignedIn(); // Automatic audits are allowed for any signed-in user
+      allow delete: if isManager();
+    }
+
+    match /manualAttendanceRequests/{requestId} {
+      allow read: if isManager() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidManualRequest(incoming()) && incoming().userId == request.auth.uid;
+      allow update: if isManager();
+      allow delete: if isManager();
+      allow list: if isManager() || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if isSignedIn();
+      allow write: if isManager();
+    }
+  }
+}
